@@ -56,7 +56,7 @@ import DBus ( fromVariant )
 import GI.Gtk
        (buttonSetLabel, widgetSetHalign, widgetSetHexpand, buttonNew, setWidgetMargin, buttonSetRelief, widgetSetSizeRequest, widgetShowAll, widgetShow, widgetHide, onWidgetDestroy
        , windowSetDefaultSize, setWindowTitle, boxPackStart, boxNew
-       , setWindowWindowPosition, WindowPosition(..), windowMove
+       , setWindowWindowPosition, WindowPosition(..), windowMove, windowResize
        , frameSetShadowType, aspectFrameNew
        , widgetGetAllocatedHeight, widgetGetAllocatedWidth, onWidgetDraw
        , adjustmentSetValue, adjustmentGetLower, adjustmentGetUpper, adjustmentGetPageSize
@@ -226,6 +226,13 @@ setNotificationCenterPosition mainWindow config = do
     getScreenPos mainWindow (fromIntegral $ configNotiCenterMonitor config)
 
   windowSetDefaultSize mainWindow
+    width -- w
+    (screenH - barHeightTop - barHeightBottom) -- h
+  -- windowSetDefaultSize only applies when the window is first mapped; on later
+  -- shows it is a no-op, so the center would keep its first monitor's height and
+  -- overlap the bar when reopened on a monitor of a different height. windowResize
+  -- forces the actual resize on every show. (dual-monitor fix)
+  windowResize mainWindow
     width -- w
     (screenH - barHeightTop - barHeightBottom) -- h
   windowMove mainWindow
